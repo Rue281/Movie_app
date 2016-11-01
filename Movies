@@ -1,0 +1,31 @@
+package com.example.android.movies;
+
+/**
+ * 
+ */
+public class Movies {
+    String Mposter_path;
+
+    public String getMposter_path() {
+        return Mposter_path;
+    }
+
+    public void setMposter_path(String mposter_path) {
+        Mposter_path = mposter_path;
+    }
+
+    public Long getMposter_id() {
+        return Mposter_id;
+    }
+
+    public void setMposter_id(Long mposter_id) {
+        Mposter_id = mposter_id;
+    }
+
+    Long Mposter_id;
+    public Movies(String poster_path, Long poster_id) {
+        this.Mposter_path=poster_path;
+        this.Mposter_id=poster_id;
+
+    }
+}
