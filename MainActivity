@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 final String mostPopularURL = "https://api.themoviedb.org/3/movie/popular?api_key=4843589caabdf86860e4e0a054175d02";
                 final String highestRatedURL = "https://api.themoviedb.org/3/movie/top_rated?api_key=4843589caabdf86860e4e0a054175d02";
-                URL url = new URL("https://www.themoviedb.org/movie"); //to read more than 1 URL
+                URL url = new URL(mostPopularURL); //to read more than 1 URL
 
                 //create the request & open connection
                 urlConnection = (HttpURLConnection) url.openConnection();
