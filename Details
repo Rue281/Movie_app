@@ -1,0 +1,109 @@
+
+package com.example.android.movies;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+
+public class Details extends AppCompatActivity {
+    imageAdapter Adapter;
+    GridView gridview;
+    String id;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_details);
+        new DetailsTask().execute();
+        Intent intent = getIntent();
+        id = intent.getStringExtra("id");
+        date=intent.getStringExtra("release_date");
+        movieTitle=intent.getStringExtra("title");
+        overview=intent.getStringExtra("overview");
+        posterURL=intent.getStringExtra("poster_path");
+        //vote=intent.getDoubleExtra("vote_average");
+
+    }
+
+    HttpURLConnection urlConnection;
+    JSONArray jArray;
+    JSONObject jsonObject = null;
+    ArrayList MovieArrayList;
+    String movieTitle, overview, date, posterURL, poster_info;
+    Double vote;
+    TextView dateTV, overviewTV, titleTV, voteTV;
+    ImageView posterIV;
+    Context mContext;
+    public class DetailsTask extends AsyncTask<ArrayList, Void, String> {
+
+
+        @Override
+        protected String doInBackground(ArrayList... arrayLists) {
+
+            try {
+                //create the request & open connection
+                final String ClickedURL = "http://image.tmdb.org/t/p/w185"+id+posterURL;
+                URL url = new URL(ClickedURL);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                //read input stream
+                InputStream inputStream = urlConnection.getInputStream(); //can't read line by line so we should use bufferReader}
+                jArray = jsonObject.getJSONArray("results");
+                MovieArrayList = new ArrayList<>();
+                //Array named result {from json formatter}
+                movieTitle = (String) jsonObject.get("title");
+                posterURL = (String) jsonObject.get("poster_path");
+                overview = (String) jsonObject.get("overview");
+                date = jsonObject.getString("release_date");
+                vote = jsonObject.getDouble("vote_average");
+                String strVote=vote.toString();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return poster_info;
+        }
+
+        @Override
+        protected void onPostExecute(String poster) {
+            Adapter = new imageAdapter(Details.this, MovieArrayList);
+            gridview.setAdapter(Adapter);
+
+            super.onPostExecute(poster);
+            poster_info = poster;
+            titleTV.setText(movieTitle);
+            overviewTV.setText(overview);
+            dateTV.setText(date);
+            Picasso.with(mContext)
+                    .load("http://image.tmdb.org/t/p/w185" + MovieArrayList)
+                    //.placeholder(R.drawable.ic_placeholder) // optional
+                    //.error(R.drawable.ic_error_fallback)
+                    .into(posterIV);
+            titleTV = (TextView) findViewById(R.id.tv_title);
+            overviewTV = (TextView) findViewById(R.id.tv_overview);
+            dateTV = (TextView) findViewById(R.id.tv_date);
+            posterIV= (ImageView) findViewById(R.id.tv_poster);
+            voteTV= (TextView) findViewById(R.id.tv_vote);
+            //here we go!!!
+        }
+    }
+}
