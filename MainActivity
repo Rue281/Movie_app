@@ -1,129 +1,54 @@
 package com.example.android.movies;
 
-
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    JSONObject jsonObject;
-    JSONArray jArray;
-    ArrayList<Movies> MovieArrayList;
-    String Poster_Path; //poster url
-    String movieTitle, overview, date, posterURL;
-    Double vote;
-    Long Poster_ID;
-    imageAdapter Adapter;
-    GridView gridview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        gridview = (GridView) findViewById(R.id.grid_view);
-        new FetchMovieData().execute();
-    }
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-    public class FetchMovieData extends AsyncTask<String, Void, ArrayList<Movies>>//1st param da 2lli bwdeh ll doIn..; 2nd byroo7 l onProgress; 3rd l result from doInba w byro7 ll onpost
-    {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+    }
 
 
         @Override
-        protected ArrayList<Movies> doInBackground(String... params) {
-            HttpURLConnection urlConnection;
-            BufferedReader reader;
-        /*Will contain the raw JSON response as a string.
-        String movieJsonStr = null;*/
+        public boolean onCreateOptionsMenu(Menu menu) {
+            // Inflate the menu; this adds items to the action bar if it is present.
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+            return true;
+        }
 
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            // Handle action bar item clicks here. The action bar will
+            // automatically handle clicks on the Home/Up button, so long
+            // as you specify a parent activity in AndroidManifest.xml.
+            int id = item.getItemId();
 
-            try {
-                final String mostPopularURL = "https://api.themoviedb.org/3/movie/popular?api_key=4843589caabdf86860e4e0a054175d02";
-                final String highestRatedURL = "https://api.themoviedb.org/3/movie/top_rated?api_key=4843589caabdf86860e4e0a054175d02";
-                URL url = new URL(mostPopularURL); //to read more than 1 URL
-
-                //create the request & open connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");//method used for the server GET DATA
-                urlConnection.connect();
-
-                //read input stream
-                InputStream inputStream = urlConnection.getInputStream(); //can't read line by line so we should use bufferReader
-
-                reader = new BufferedReader(new InputStreamReader(inputStream));//data of type JSON
-                String strReader = reader.readLine();
-                inputStream.close();
-                jsonObject = new JSONObject(strReader);
-                jArray = jsonObject.getJSONArray("results");
-                MovieArrayList = new ArrayList<>();
-                //Array named result {from json formatter}
-                //3shan 2wsl ll obejects gowa l array
-                for (int i = 0; i < jArray.length(); i++) {
-                    jsonObject = jArray.getJSONObject(i);
-                    Poster_Path = jsonObject.getString("poster_path");
-                    Poster_ID = jsonObject.getLong("id");
-                    /*movieTitle =jsonObject.getString("title");
-                    overview =jsonObject.getString("overview");
-                    date = jsonObject.getString("release_date");
-                    vote = jsonObject.getDouble("vote_average");*/
-
-                    //to get poster path & poster id and put them in json object
-                    Movies movieObj = new Movies(Poster_Path, Poster_ID);
-                    movieObj.setMposter_path(Poster_Path);
-                    movieObj.setMposter_id(Poster_ID);
-                    MovieArrayList.add(movieObj);
-                }
-
-
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
+            //noinspection SimplifiableIfStatement
+            if (id == R.id.action_settings) {
+                return true;
             }
 
-            return MovieArrayList;
-        }
-       @Override
-        protected void onPostExecute(ArrayList<Movies> MovieArrayList)
-        {
-            Adapter=new imageAdapter(MainActivity.this,MovieArrayList);
-            gridview.setAdapter(Adapter);
-            //Register a callback to be invoked when an item in this AdapterView has been clicked.
-            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener()
-            {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    Movies m=Adapter.getItem(i);
-                    Long ID=gridview.getItemIdAtPosition(i);
-                    Intent intent=new Intent(MainActivity.this,Details.class);
-                    intent.putExtra("id",ID);
-
-                   /* intent.putExtra("title",movieTitle);
-                    intent.putExtra("overview",overview);
-                    intent.putExtra("release_date",date);
-                    intent.putExtra("vote_average",vote);
-                    intent.putExtra("poster_path",posterURL);*/
-                    startActivity(intent);
-                }
-            });
+            return super.onOptionsItemSelected(item);
         }
     }
-}
+
