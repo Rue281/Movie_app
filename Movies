@@ -1,10 +1,15 @@
 package com.example.android.movies;
 
 /**
- * 
  */
 public class Movies {
     String Mposter_path;
+    Long Mposter_id;
+
+    public Movies(String poster_path, Long poster_id) {
+        this.Mposter_path = poster_path;
+        this.Mposter_id = poster_id;
+    }
 
     public String getMposter_path() {
         return Mposter_path;
@@ -20,12 +25,5 @@ public class Movies {
 
     public void setMposter_id(Long mposter_id) {
         Mposter_id = mposter_id;
-    }
-
-    Long Mposter_id;
-    public Movies(String poster_path, Long poster_id) {
-        this.Mposter_path=poster_path;
-        this.Mposter_id=poster_id;
-
     }
 }
