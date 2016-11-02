@@ -1,0 +1,137 @@
+package com.example.android.movies;
+
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.util.ArrayList;
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class MainActivityFragment extends Fragment {
+    JSONObject jsonObject;
+    JSONArray jArray;
+    ArrayList<Movies> MovieArrayList;
+    String Poster_Path; //poster url
+    String movieTitle, overview, date;
+    Double vote;
+    Long Poster_ID;
+    MovieAdapter Adapter;
+    GridView gridview;
+
+
+    public MainActivityFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_main, container, false);
+        //onActivityCreated(setHasOptionsMenu(true));
+    }
+
+    private void onActivityCreated(void aVoid) {
+        setHasOptionsMenu(true);
+    }
+
+    public class FetchMovieData extends AsyncTask<String, Void, ArrayList<Movies>> {
+
+        @Override
+        protected ArrayList<Movies> doInBackground(String... params) {
+            HttpURLConnection urlConnection;
+            BufferedReader reader;
+        /*Will contain the raw JSON response as a string.
+        String movieJsonStr = null;*/
+            try {
+                final String mostPopularURL = "https://api.themoviedb.org/3/movie/popular?api_key=4843589caabdf86860e4e0a054175d02";
+                final String highestRatedURL = "https://api.themoviedb.org/3/movie/top_rated?api_key=4843589caabdf86860e4e0a054175d02";
+                URL url = new URL(mostPopularURL); //to read more than 1 URL
+
+                //create the request & open connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");//method used for the server GET DATA
+                urlConnection.connect();
+
+                //read input stream
+                InputStream inputStream = urlConnection.getInputStream(); //can't read line by line so we should use bufferReader
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));//data of type JSON
+                String strReader = reader.readLine();
+                jsonObject = new JSONObject(strReader);
+                jArray = jsonObject.getJSONArray("results");
+                MovieArrayList = new ArrayList<>();
+                //Array named result {from json formatter}
+                //3shan 2wsl ll obejects gowa l array
+                for (int i = 0; i < jArray.length(); i++) {
+                    jsonObject = jArray.getJSONObject(i);
+                    //3shn a-access kol 7aga gowa l object 2lli 2smo poster path
+                    Poster_Path = jsonObject.getString("poster_path");
+                    Poster_ID = jsonObject.getLong("id");
+                    movieTitle = jsonObject.getString("title");
+                    overview = jsonObject.getString("overview");
+                    date = jsonObject.getString("release_date");
+                    vote = jsonObject.getDouble("vote_average");
+
+                    //to get poster path & poster id and put them in json object
+                    Movies movieObj = new Movies(Poster_Path, Poster_ID);
+                    movieObj.setMposter_path(Poster_Path);
+                    movieObj.setMposter_id(Poster_ID);
+                    MovieArrayList.add(movieObj);
+                }
+                inputStream.close();
+                return null;
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return MovieArrayList;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Movies> MovieArrayList) {
+            Adapter = new MovieAdapter(MainActivityFragment.this, MovieArrayList);
+            gridview.setAdapter(Adapter);
+            //Register a callback to be invoked when an item in this AdapterView has been clicked.
+            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Movies m = (Movies) Adapter.getItem(i);
+                    Long ID = gridview.getItemIdAtPosition(i);
+                    Intent intent = new Intent(getActivity(),Details.class);//
+                    intent.putExtra("id", ID);
+
+                   /* intent.putExtra("title",movieTitle);
+                    intent.putExtra("overview",overview);
+                    intent.putExtra("release_date",date);
+                    intent.putExtra("vote_average",vote);
+                    intent.putExtra("poster_path",posterURL);*/
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+}
