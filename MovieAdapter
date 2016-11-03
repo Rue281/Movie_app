@@ -12,11 +12,11 @@ import java.util.ArrayList;
 /**
  *
  */
-public class imageAdapter extends BaseAdapter{
+public class MovieAdapter extends BaseAdapter{
     ArrayList<Movies> MovieList;
     Context mContext = null;
 
-    public imageAdapter(Context context,ArrayList<Movies> movieArrayList) {
+    public MovieAdapter(Context context,ArrayList<Movies> movieArrayList) {
         super();
         this.mContext=context;
         this.MovieList=movieArrayList;
@@ -25,7 +25,7 @@ public class imageAdapter extends BaseAdapter{
     @Override
     public int getCount() {
 
-       return MovieList.size();
+        return MovieList.size();
     }
 
     @Override
@@ -41,9 +41,9 @@ public class imageAdapter extends BaseAdapter{
         if (convertedView==null)
         {
             LayoutInflater inflater=(LayoutInflater)
-                        mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertedView=inflater.inflate(R.layout.grid_item,null);
-            }
+                    mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertedView=inflater.inflate(R.layout.grid_item,null);
+        }
         ImageView ivMovieName= (ImageView) convertedView.findViewById(R.id.image_view);
 
         Picasso.with(mContext)
