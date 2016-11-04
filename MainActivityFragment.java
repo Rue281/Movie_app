@@ -46,17 +46,41 @@ public class MainActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        gridview = (GridView) view.findViewById(R.id.gridview);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        gridview = (GridView) rootView.findViewById(R.id.gridview);
+        gridview.setAdapter(Adapter);
+        Adapter = new MovieAdapter(getActivity(), MovieArrayList);
 
+        //Register a callback to be invoked when an item in this AdapterView has been clicked.
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //String forecast = (String) Adapter.getItem(i);
+                Movies m = MovieArrayList.get(i);
+                Long Movie_ID = m.getMposter_id();
+                String Poster_URL = m.getMposter_path();
+                String Movie_Title = m.getMtitle();
+                String Movie_Date = m.getMdate();
+                String Movie_Overview = m.getMoverview();
+                Double Movie_Vote = m.getMvote();
 
-        return view;
+                Intent intent = new Intent(getActivity(), Details.class);
+                intent.putExtra("id", Movie_ID);
+                intent.putExtra("poster_path", Poster_URL);
+                intent.putExtra("title", Movie_Title);
+                intent.putExtra("overview", Movie_Overview);
+                intent.putExtra("release_date", Movie_Date);
+                intent.putExtra("vote_average", Movie_Vote);
+                startActivity(intent);
+            }
+        });
+        return rootView;
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         setHasOptionsMenu(true);
-        new FetchMovieData(getActivity()).execute();
+        new FetchMovieData(getActivity()).execute();//lazm aktb l strings 2lli btro7 ll do in bkground ()
     }
 
     public class FetchMovieData extends AsyncTask<String, Void, ArrayList<Movies>> {
@@ -119,7 +143,7 @@ public class MainActivityFragment extends Fragment {
                 //3shan 2wsl ll obejects gowa l array
                 for (int i = 0; i < jArray.length(); i++) {
                     jsonObject = jArray.getJSONObject(i);
-                    //3shn a-access kol 7aga gowa l object 2lli 2smo poster path
+                    //3shn a-access kol 7aga gowa l object poster path
                     Poster_Path = jsonObject.getString("poster_path");
                     Poster_ID = jsonObject.getLong("id");
                     movieTitle = jsonObject.getString("title");
@@ -131,6 +155,10 @@ public class MainActivityFragment extends Fragment {
                     Movies movieObj = new Movies(Poster_Path, Poster_ID, movieTitle, overview, date, vote);
                     movieObj.setMposter_path(Poster_Path);
                     movieObj.setMposter_id(Poster_ID);
+                    movieObj.setMdate(date);
+                    movieObj.setMoverview(overview);
+                    movieObj.setMtitle(movieTitle);
+                    movieObj.setMvote(vote);
                     MovieArrayList.add(movieObj);
                 }
                 inputStream.close();
@@ -158,13 +186,15 @@ public class MainActivityFragment extends Fragment {
         }
         @Override
         protected void onPostExecute(final ArrayList<Movies> MovieArrayList) {
-            Adapter = new MovieAdapter(getActivity(), MovieArrayList);
-            gridview.setAdapter(Adapter);
+
+           super.onPostExecute(MovieArrayList);
+           /* Adapter = new MovieAdapter(getActivity(), MovieArrayList);
+            gridview.setAdapter(Adapter);*/
             /*
             *how to add in the adapter*/
 
             //Register a callback to be invoked when an item in this AdapterView has been clicked.
-            gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            /*gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Movies m = MovieArrayList.get(i);
@@ -182,9 +212,7 @@ public class MainActivityFragment extends Fragment {
                     intent.putExtra("overview",Movie_Overview);
                     intent.putExtra("release_date",Movie_Date);
                     intent.putExtra("vote_average",Movie_Vote);
-                    startActivity(intent);
+                    startActivity(intent);*/
                 }
-            });
+            }
         }
-    }
-}
